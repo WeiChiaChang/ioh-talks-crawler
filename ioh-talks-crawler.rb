@@ -2,24 +2,28 @@ require 'nokogiri'
 require 'pry'
 require 'json'
 require 'open-uri'
+require 'progress_bar'
 
 talks = []
 
-home = "http://ioh.tw"
+home = "https://ioh.tw"
 
-url = 'http://ioh.tw/talks'
+url = 'https://ioh.tw/talks'
 doc = Nokogiri::HTML(open(url))
 
-# page = "http://ioh.tw/talks/page/#{num}"
+# get the total number of pages
+totalPage = doc.css('a.page-numbers')[2].text.to_i
+bar = ProgressBar.new(totalPage)
+
+# page = "https://ioh.tw/talks/page/#{num}"
 # IOH got talk pages 2 ~ 38, update to 2016 / 11 / 05 (Sat)
 
 
-# Dir.glob('http://ioh.tw/talks').each do |filename|
+# Dir.glob('https://ioh.tw/talks').each do |filename|
   # str = File.read(filename)
   # doc = Nokogiri::HTML(str.encode("utf-8", :invalid => :replace, :undef => :replace))
 
 doc.css('div#main div.row-fluid article').each do |talks_info|
-
   page_one = {
     url: "#{home}" + talks_info.css('a')[0][:href],
     name: talks_info.css('h4/a')[0].text,
@@ -28,24 +32,23 @@ doc.css('div#main div.row-fluid article').each do |talks_info|
     department: talks_info.css('.category/a')[0].text,
     description: talks_info.css('p')[0].text.gsub("\n",''),
   }
-  
+
   if talks_info.css('div.schools/a')[1] != nil
     page_one[:school] = [talks_info.css('div.schools/a')[0].text, talks_info.css('div.schools/a')[1].text]
   else
     page_one[:school] = [talks_info.css('div.schools/a')[0].text]
-  end 
-  
-  talks << page_one
+  end
 
+  talks << page_one
 end
 
-(2..38).each do |num|
+bar.increment!
 
-  page = "http://ioh.tw/talks/page/#{num}"
+(2..totalPage).each do |num|
+  page = "https://ioh.tw/talks/page/#{num}"
   doc_page = Nokogiri::HTML(open(page))
 
   doc_page.css('div#main div.row-fluid article').each do |talks_info|
-
     if talks_info.css('a')[0] != nil
       data = {
         url: "#{home}" + talks_info.css('a')[0][:href],
@@ -60,13 +63,13 @@ end
         data[:school] = [talks_info.css('div.schools/a')[0].text, talks_info.css('div.schools/a')[1].text]
       else
         data[:school] = [talks_info.css('div.schools/a')[0].text]
-      end 
+      end
     end
 
     talks << data
-
   end
 
+  bar.increment!
 end
 
 File.open('ioh-talks-for-ncnu.json', 'w') {|file| file.write(JSON.pretty_generate(talks))}
