@@ -6,19 +6,19 @@ require 'progress_bar'
 
 talks = []
 
-home = "http://ioh.tw"
+home = "https://ioh.tw"
 
-url = 'http://ioh.tw/talks'
+url = 'https://ioh.tw/talks'
 doc = Nokogiri::HTML(open(url))
 
 totalPage = 44
 bar = ProgressBar.new(totalPage)
 
-# page = "http://ioh.tw/talks/page/#{num}"
+# page = "https://ioh.tw/talks/page/#{num}"
 # IOH got talk pages 2 ~ 38, update to 2016 / 11 / 05 (Sat)
 
 
-# Dir.glob('http://ioh.tw/talks').each do |filename|
+# Dir.glob('https://ioh.tw/talks').each do |filename|
   # str = File.read(filename)
   # doc = Nokogiri::HTML(str.encode("utf-8", :invalid => :replace, :undef => :replace))
 
@@ -44,7 +44,7 @@ end
 bar.increment!
 
 (2..44).each do |num|
-  page = "http://ioh.tw/talks/page/#{num}"
+  page = "https://ioh.tw/talks/page/#{num}"
   doc_page = Nokogiri::HTML(open(page))
 
   doc_page.css('div#main div.row-fluid article').each do |talks_info|
