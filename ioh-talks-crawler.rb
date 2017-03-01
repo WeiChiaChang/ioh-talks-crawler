@@ -11,7 +11,8 @@ home = "https://ioh.tw"
 url = 'https://ioh.tw/talks'
 doc = Nokogiri::HTML(open(url))
 
-totalPage = 44
+# get the total number of pages
+totalPage = doc.css('a.page-numbers')[2].text.to_i
 bar = ProgressBar.new(totalPage)
 
 # page = "https://ioh.tw/talks/page/#{num}"
@@ -43,7 +44,7 @@ end
 
 bar.increment!
 
-(2..44).each do |num|
+(2..totalPage).each do |num|
   page = "https://ioh.tw/talks/page/#{num}"
   doc_page = Nokogiri::HTML(open(page))
 
